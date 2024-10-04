@@ -1,101 +1,99 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+import Navbar from "./components/Navbar";
+import Slider from "./components/Slider";
+import { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Article | Home",
+  description: "Discover the latest articles",
+  openGraph: {
+    type: "website",
+    title: "Article | Home",
+    description: "Discover the latest articles",
+  },
+  twitter: {
+    title: "Latest Articles on SEO & Digital Marketing | YourWebsite",
+    description: "Discover the latest articles",
+  },
+};
+
+export default async function Home(props: {
+  searchParams: { nav_id: string };
+}) {
+  const categories = (await fetch(`${process.env.BASE_API}/categories`)
+    .then((res) => res.json())
+    .then((res) => res.data)) as Category[];
+
+  const articleURL = new URL(`${process.env.BASE_API}/articles`);
+  articleURL.searchParams.set("search", "");
+  articleURL.searchParams.set("limit", "5");
+  articleURL.searchParams.set("page", "1");
+  articleURL.searchParams.set("sort", "");
+  articleURL.searchParams.set(
+    "category_id",
+    props.searchParams.nav_id ?? categories[0]?.id
+  );
+
+  const content = await fetch(articleURL.toString())
+    .then((res) => res.json())
+    .then((res) => res.data);
+
+  const foryouURL = new URL(`${process.env.BASE_API}/articles`);
+  foryouURL.searchParams.set("search", "");
+  foryouURL.searchParams.set("limit", "2");
+  foryouURL.searchParams.set("page", "1");
+  foryouURL.searchParams.set("sort", "");
+
+  const fypContents = (await Promise.allSettled(
+    categories.map((c) => {
+      foryouURL.searchParams.set("category_id", String(c.id));
+      return fetch(foryouURL.toString())
+        .then((res) => res.json())
+        .then((res) => res.data);
+    })
+  )
+    .then((res) => res.filter((r) => r.status === "fulfilled"))
+    .then((res) => res.map((r) => r.value))) as Articles[];
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      <p className="font-semibold text-slate-500">Saturday, Augs 12th</p>
+      <h1 className="mt-4 text-2xl font-bold">
+        Welcome, <br />
+        John Doe
+      </h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      <Navbar
+        items={categories.map((a) => ({ key: String(a.id), value: a.name }))}
+      />
+
+      <Slider initialData={content} />
+
+      <div className="mt-12 mb-2 flex justify-between">
+        <h4 className="text-slate-500 font-semibold text-xl">Just for you</h4>
+      </div>
+
+      <div className="flex flex-col gap-y-4">
+        {fypContents
+          .map((f) => f.data)
+          .flat(1)
+          .map((f) => (
+            <Link key={f.id} href={`/article/${f.slug}?id=${f.id}`}>
+              <div className="shadow-lg rounded-xl p-3">
+                <h3 className="text-2xl font-bold">{f.title}</h3>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: `<p><br></p><ul><li>Pendidikan min. D3/S1 semua jurusan</li><li><strong>Bersedia tidak menggunakan atribut keagamaan saat bekerja</strong></li><li><strong>Diutamakan dapat berkomunikasa dalam Bahasa Jepang &amp; Bahasa Inggris</strong></li><li><strong>Memiliki pengalaman minimal 2 tahun sebagi Marketing dibidang Property</strong></li><li>Memiliki kemampuan komunikasi dan interpersonal skill yang sangat baik</li><li>Suka dengan pekerjaan dibidang penjualan property dan rumah-rumah mewah</li><li>Memiliki kemampuan bernegosiasi dan mempengaruhi</li><li>Memiliki motivasi / keinginan kuat untuk berhasil</li><li>Memiliki pengetahuan tentang Digital Marketing</li><li><strong>Penempatan Cikarang - Jawa Barat</strong></li></ul>\n    <p><br></p><ul><li>Mencari calon pembeli yang sesuai dengan segmen produk</li><li>Melakukan presentasi dan penawaran produk kepada calon pembeli</li><li>Melakukan follow up dan membangun hubungan baik dengan customer</li><li>Membuat rencana dan strategi untuk mencapai target penjualan</li><li>Menjalankan kegiatan penjualan seperti pameran, canvassing, digital Marketing, dll.</li><li>Penempatan di&nbsp;<strong>Cikarang - Jawa Barat</strong></li></ul>`,
+                  }}
+                  className="overflow-hidden text-ellipsis line-clamp-5 *:text-sm -mt-2"
+                ></div>
+              </div>
+            </Link>
+          ))}
+      </div>
+    </>
   );
 }
