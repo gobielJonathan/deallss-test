@@ -1,9 +1,6 @@
 import { Metadata } from "next";
 import Content from "./components/Content";
-
-function stripHtml(html: string) {
-  return html.replace(/<[^>]*>?/gm, "");
-}
+import stripHtml from "@/app/utils/strip-html";
 
 export async function generateMetadata(props: {
   searchParams: { id: string };
